@@ -1,0 +1,95 @@
+MYSQL:
+drop table t_user;
+create table t_user(
+uid varchar(22),
+age integer(22),
+sex varchar(33),
+active_date date,
+limit_amt decimal(12,10)
+);
+drop table loanthanuserloan;
+create table loanthanuserloan(
+uid varchar(22),
+price_sum decimal(12,10),
+loan_amount_sum decimal(12,10)
+);
+
+ignore 1 lines --�ܹ���һ�У�����ͷ
+load data infile "/opt/project/t_user.csv" into table t_user  fields terminated by ',' ignore 1 lines;
+
+Hive
+create table t_user(
+uid string,
+age int,
+sex string,
+active_date date,
+limit_amt decimal(12,10)
+)
+row format delimited fields terminated by ',';
+
+create table t_click(
+uid string,
+click_time TIMESTAMP,
+pid string,
+param string
+)
+row format delimited  fields terminated by ',';
+
+drop table t_loan;
+create table t_loan(
+uid string,
+load_time timestamp,
+loan_amount decimal(12,10),
+plannum int
+)row format delimited fields  terminated  by ',';
+load data local inpath '/opt/project/t_loan.csv' into table t_loan;
+
+drop table t_loan_sum;
+create table t_loan_sum(
+uid string,
+month string,
+loan_sum decimal(10,9)
+)
+row format delimited   fields terminated by ',';
+load data local inpath '/opt/project/t_loan_sum.csv' into table t_loan_sum;
+
+drop table t_order;
+create table t_order(
+uid string,
+buy_time date,
+price decimal(11,10),
+qty int,
+cate_id string,
+discount decimal(11,10)
+)
+row format delimited fields terminated  by ',';
+load data local inpath '/opt/project/t_order.csv' into table t_order;
+
+SQOOP_HOME
+$SQOOP_HOME/bin/sqoop import --connect jdbc:mysql://holiday-1:3306/test \
+--username root --password admin123  \
+--table t_user --num-mappers  1  \
+--hive-database test   \
+--hive-import --hive-table t_user  --fields-terminated-by ',' --delete-target-dir
+
+�������������ÿ�չ�����Ʒ�ܼ�ֵ 
+select 
+t_user.age,
+t_order.buy_time,
+t_order.cate_id,
+sum(t_order.price * t_order.qty)
+from t_user
+join t_order  on t_user.uid=t_order.uid
+where t_order.qty>0
+group by t_user.age,t_order.buy_time,t_order.cate_id
+limit  10;
+
+��Ů������ÿ�ս����� 
+select 
+t_user.sex,
+substr(t_loan.load_time,1,10) load_time,
+sum(t_loan.loan_amount) loan_amount
+from t_user join t_loan on t_user.uid=t_loan.uid
+group by t_user.sex,substr(t_loan.load_time,1,10)
+limit 10;
+
