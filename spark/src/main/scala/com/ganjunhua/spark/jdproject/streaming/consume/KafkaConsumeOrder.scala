@@ -49,12 +49,15 @@ object KafkaConsumeOrder {
         })
       })
     })
+
+
     ssc
   }
 
   // 使用MapWithState 实现值的累加
+
   def newMapWithState = (word: String, one: Option[Double], state: State[Double]) => {
-    val sum = one.getOrElse(0) + state.getOption().getOrElse(0)
+    val sum = one.getOrElse(0.0) + state.getOption().getOrElse(0.0)
     val outPut = (word, sum)
     state.update(sum)
     outPut
