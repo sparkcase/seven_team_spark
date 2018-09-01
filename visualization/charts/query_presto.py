@@ -3,14 +3,17 @@
 
 import pandas as pd
 from pyhive import presto
+from prestoConfig import config
 
-PRESTO_SERVER = {'host': 'master', 'port': 8087, 'catalog': 'hive', 'schema': 'default'}
+PRESTO_SERVER = {'host': config["host"], 'port': config["port"], 'catalog': config["catalog"],
+                 'schema': config["schema"]}
 PRICE_PERDAY_QUERY = "select t_user.age, t_order.buy_time, sum(t_order.price * t_order.qty) as total_price from t_user join t_order on t_user.uid=t_order.uid where t_order.qty>0 group by t_user.age,t_order.buy_time order by t_order.buy_time limit 200"
 GENDER_LOAN_DAY_QUERY = "select t_user.sex, date_trunc('day', load_time) loan_time, sum(t_loan.loan_amount) loan_amount from t_user join t_loan on t_user.uid=t_loan.uid where load_time is not NULL group by t_user.sex, date_trunc('day', load_time) order by date_trunc('day', load_time) limit 100"
 GENDER_LOAN_WEEK_QUERY = "select t_user.sex, date_trunc('week', load_time) loan_time, sum(t_loan.loan_amount) loan_amount from t_user join t_loan on t_user.uid=t_loan.uid where load_time is not NULL group by t_user.sex, date_trunc('week', load_time) order by date_trunc('week', load_time) limit 100"
 GENDER_LOAN_MONTH_QUERY = "select t_user.sex, date_trunc('month', load_time) loan_time, sum(t_loan.loan_amount) loan_amount from t_user join t_loan on t_user.uid=t_loan.uid where load_time is not NULL group by t_user.sex, date_trunc('month', load_time) order by date_trunc('month', load_time) limit 100"
 
 class Presto_Query:
+
     def total_price_perday(self):
         conn = presto.connect(**PRESTO_SERVER)
         cur = conn.cursor()
