@@ -3,6 +3,7 @@
 flask
 pandas
 pyhive
+mysql-connector-python
 
 2、presto的配置文件是位于visualization/charts目录下的prestoConfig.py
 
