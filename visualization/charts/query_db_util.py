@@ -1,0 +1,20 @@
+#!/usr/bin/python
+# -*- coding:utf-8 -*-
+
+import sys
+sys.path.append("../")
+from db_config import mysql_config
+import mysql.connector as myconn
+
+
+def find_all(sql):
+    conn = myconn.connect(host=mysql_config["host"], user=mysql_config["user"], passwd=mysql_config["passwd"], db=mysql_config["db"])
+    cur = conn.cursor()
+    result = []
+    try:
+        cur.execute(sql)
+        result = cur.fetchall()
+    finally:
+        cur.close()
+        conn.close()
+    return result

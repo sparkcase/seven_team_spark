@@ -156,7 +156,6 @@ class Chart(dict):
             self["legend"]["data"].append(name)
         return self
 
-
     def multiBar(self, name, xdata, xname, series, auto_legend=True, **kwargs):
         """
         添加多系列彩虹柱形图
@@ -177,6 +176,25 @@ class Chart(dict):
             })
             legendData.append(n)
         self.legend(data=legendData)
+        if "yAxis" not in self:
+            self.y_axis()
+        if name not in self["legend"]["data"] and auto_legend:
+            self["legend"]["data"].append(name)
+        return self
+
+    def bar(self, name, data=None, auto_legend=True, y_axis_index=0, **kwargs):
+        """
+        添加一个柱状图
+        `data`: [10, 20, 30, 40]
+        `auto_legend`: 自动生成图例
+        """
+        data = [] if data is None else data
+        self["series"].append(self.__merge_dict({
+            "type": "bar",
+            "name": name,
+            "data": data,
+            "yAxisIndex": y_axis_index
+        }, kwargs))
         if "yAxis" not in self:
             self.y_axis()
         if name not in self["legend"]["data"] and auto_legend:
