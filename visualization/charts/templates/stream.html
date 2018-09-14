@@ -2,9 +2,9 @@
 
 <html>
     <head>
+        <meta http-equiv="refresh" content="2">
         <title>京东金融信贷需求预分析</title>
         <script src="http://echarts.baidu.com/build/dist/echarts.js"></script>
-        <script src="http://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>
         <script>
          require.config({
              paths: {
@@ -14,6 +14,26 @@
         </script>
     </head>
     <body>
-    <h1>stream</h1>
+        <h1>{{title}}</h1>
+        {% for template in templates %}
+        {% if template.type == 'chart' %}
+        <p>
+            {{template.title}}
+        </p>
+        <div id="chart_{{template.index}}" style="height:400px"></div>
+        <script type="text/javascript">
+            require([
+                'echarts',
+                'echarts/chart/line',
+                'echarts/chart/bar',
+            ],
+            function (ec) {
+                var myChart = ec.init(document.getElementById("chart_{{template.index}}"));
+                var option = {{template.option|safe}};
+                myChart.setOption(option);
+            });
+        </script>
+        {% endif %}
+        {% endfor %}
     </body>
 </html>

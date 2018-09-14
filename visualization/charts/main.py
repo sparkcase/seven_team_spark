@@ -6,6 +6,7 @@ from flask import Flask, render_template
 from models import Chart
 from query_mysql import Mysql_Query
 from query_presto import Presto_Query
+from query_redis import Redis_Query
 
 app = Flask(__name__)
 
@@ -80,7 +81,32 @@ def mysql():
 
 @app.route("/stream")
 def stream():
-    return render_template("stream.html")
+    query = Redis_Query()
+    # 每个页面累计点击次数
+    tuples_click = query.click_query()
+    keys_click = query.get_keys(tuples_click)
+    values_click = query.get_values(tuples_click)
+    bar_click = Chart() \
+        .x_axis(data=keys_click) \
+        .y_axis(formatter="{value}") \
+        .line(u"点击次数", values_click)
+    # 不同年龄段消费总金额
+    tuples_order = query.order_query()
+    keys_order = query.get_keys(tuples_order)
+    values_order = query.get_values(tuples_order)
+    bar_order = Chart() \
+        .x_axis(data=keys_order) \
+        .y_axis(formatter="{value}") \
+        .line(u"人数", values_order)
+
+    render = {
+        "title": "京东金融信贷需求预分析",
+        "templates": [
+            {"type": "chart", "title": u"每个页面累计点击次数", "index": 1, "option": json.dumps(bar_click, indent=2)},
+            {"type": "chart", "title": u"不同年龄段消费总金额", "index": 2, "option": json.dumps(bar_order, indent=2)},
+        ]
+    }
+    return render_template("stream.html", **render)
 
 
 if __name__ == "__main__":
